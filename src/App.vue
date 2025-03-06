@@ -4,6 +4,14 @@ const arrayList = reactive([]);
 const task = ref("");
 const editButtons = ref([]);
 const editVal = ref("");
+const buttonColor = reactive([19 , 0 , 0 , 0 , 0]);
+console.log(buttonColor);
+function allFalse() {
+  for(let i=0; i<5; i++)
+{
+  buttonColor[i] = 0;
+}
+}
 function taskAdd() {
   if (task.value === "") {
     return;
@@ -14,7 +22,7 @@ function taskAdd() {
     marked: false,
     backgroundColor: "#FFFFFF",
     isVisible: true,
-    editFlag : false
+    editFlag: false
   });
   task.value = "";
 }
@@ -39,6 +47,8 @@ function SelectList(item) {
 }
 
 function selectAll() {
+  allFalse();
+  buttonColor[4] = 1;
   let flag = true;
   if (selected.value.innerText === 'Select All') {
     selected.value.innerText = 'Unselect All';
@@ -59,6 +69,8 @@ function selectAll() {
 }
 
 function clearCompleted() {
+  allFalse();
+  buttonColor[3] = 1;
   console.log('yes');
   while (1) {
     let idx = -1;
@@ -81,6 +93,8 @@ function visible() {
   }
 }
 function allCompleted() {
+  allFalse();
+  buttonColor[0] = 1;
   visible();
   for (let i = 0; i < arrayList.length; i++) {
     if (arrayList[i].marked === false) {
@@ -90,6 +104,8 @@ function allCompleted() {
 }
 
 function showAll() {
+  allFalse();
+  buttonColor[2] = 1;
   visible();
   for (let i = 0; i < arrayList.length; i++) {
     if (arrayList[i].marked === false) {
@@ -99,6 +115,8 @@ function showAll() {
 }
 
 function remaining() {
+  allFalse();
+  buttonColor[1] = 1;
   visible();
   for (let i = 0; i < arrayList.length; i++) {
     if (arrayList[i].marked === true) {
@@ -115,7 +133,7 @@ function edit(item, index) {
       editVal.value = item.task;
       item.task = "";
     }
-    else{
+    else {
       editButtons.value[index].innerText = "Edit";
       item.task = editVal.value;
       item.editFlag = false;
@@ -123,8 +141,8 @@ function edit(item, index) {
   }
 }
 
-function deleteItem(index){
-  arrayList.splice(index , 1);
+function deleteItem(index) {
+  arrayList.splice(index, 1);
 }
 </script>
 
@@ -139,11 +157,21 @@ function deleteItem(index){
     <ul id="all-task" class="listTask"></ul>
 
     <div id="all-btn">
-      <button id="btn1" @click="allCompleted"> All Completed </button>
-      <button @click="remaining()" id="btn2"> Remaining </button>
-      <button @click="showAll()" id="btn3"> Show all </button>
-      <button @click="clearCompleted()" id="btn4"> Clear Completed Task</button>
-      <button id="btn5" ref="allSelect" @click="selectAll"> Select All </button>
+      <button id="btn1" @click="allCompleted"
+        :style="buttonColor[0] === 1 ? { backgroundColor: 'red' } : { backgroundColor: '#4a54e1' }"> All Completed
+      </button>
+      <button @click="remaining()" id="btn2"
+        :style="buttonColor[1] === 1 ? { backgroundColor: 'red' } : { backgroundColor: '#4a54e1' }"> Remaining
+      </button>
+      <button @click="showAll()" id="btn3"
+        :style="buttonColor[2] === 1 ? { backgroundColor: 'red' } : { backgroundColor: '#4a54e1' }"> Show all
+      </button>
+      <button @click="clearCompleted()" id="btn4"
+        :style="buttonColor[3] === 1 ? { backgroundColor: 'red' } : { backgroundColor: '#4a54e1' }"> Clear Completed
+        Task</button>
+      <button id="btn5" ref="allSelect" @click="selectAll"
+        :style="buttonColor[4] === 1 ? { backgroundColor: 'red' } : { backgroundColor: '#4a54e1' }"> Select All
+      </button>
     </div>
   </div>
 
@@ -166,96 +194,105 @@ function deleteItem(index){
 
 </template>
 <style scoped>
-*{
-    margin : 0;
-    padding : 0;
+* {
+  margin: 0;
+  padding: 0;
 }
 
-#VueOutput{
-  margin : 0px auto;
-  width : 60%;
+#VueOutput {
+  margin: 0px auto;
+  width: 60%;
 }
 
-.container{
-    width : 50%;
-    margin : 10px auto 15px;
+.container {
+  width: 50%;
+  margin: 10px auto 15px;
 }
-.heading{
-    margin-left:330px;
+
+.heading {
+  margin-left: 330px;
 }
-.input-task{
-    margin-top  : 20px;
-    max-width:100%;
+
+.input-task {
+  margin-top: 20px;
+  max-width: 100%;
 }
-.take-input{
-    width:80%;
-    height: 30px;
+
+.take-input {
+  width: 80%;
+  height: 30px;
 }
-.add-btn{
-    padding:8px 22px;
-    border-radius:2px;
-    background-color: rgb(240, 192, 255);
+
+.add-btn {
+  padding: 8px 22px;
+  border-radius: 2px;
+  background-color: rgb(240, 192, 255);
 }
 
 .listTask {
-    list-style: none;
-    margin-top: 20px;
-    padding: 0;
+  list-style: none;
+  margin-top: 20px;
+  padding: 0;
 }
 
 .listTask li {
-    max-width:86%;
-    background: #fff;
-    padding: 10px;
-    margin-top: 8px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #ddd;
-    transition: 0.3s;
+  max-width: 86%;
+  background: #fff;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ddd;
+  transition: 0.3s;
 }
-.listTask li div{
-    width:12%;
-    display:flex;
-    justify-content: space-between;
-}
-.listTask li div button{
 
-    padding:5px;
+.listTask li div {
+  width: 12%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.listTask li div button {
+
+  padding: 5px;
 }
 
 
 .listTask li:hover {
-    background: #f9f9f9;
+  background: #f9f9f9;
 }
 
-ul li button{
-   display:flex;
-   flex-direction: row;
+ul li button {
+  display: flex;
+  flex-direction: row;
+  font-size: bold;
 }
+
 #all-btn {
-    width:89%;
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
+  width: 89%;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
 #all-btn button {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background: #5c67f2;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #5c67f2;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-#all-btn button:hover {
-    background: #4a54e1;
-}
+/* #all-btn button:hover {
+  background: ;
+} */
+
 #clear:hover {
-    background: #e63939;
+  background: #e63939;
 }
 </style>
