@@ -130,7 +130,7 @@ function deleteItem(index){
 
 <template>
   <div class="container">
-    <h1 class="heading">Todo App</h1>
+    <h1 class="heading"> Vue Todo </h1>
     <div class="input-task">
       <input type="text" id="input-box" placeholder="Enter a new Task" class="take-input" v-model.trim="task"
         @keyup.enter="taskAdd()">
@@ -169,6 +169,11 @@ function deleteItem(index){
 *{
     margin : 0;
     padding : 0;
+}
+
+#VueOutput{
+  margin : 0px auto;
+  width : 60%;
 }
 
 .container{
