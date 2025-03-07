@@ -3,15 +3,17 @@ import { reactive, ref, watch, useTemplateRef, onMounted } from "vue";
 const arrayList = reactive([]);
 const task = ref("");
 const editButtons = ref([]);
-const editVal = ref("");
 const buttonColor = reactive([0, 0, 0, 0, 0]);
 const all = ref(false);
+const ishow = ref(true);
+
 function allFalse() {
   for (let i = 0; i < 5; i++) {
     buttonColor[i] = 0;
   }
 }
 function taskAdd() {
+  ishow.value = true;
   if (task.value === "") {
     return;
   }
@@ -26,6 +28,7 @@ function taskAdd() {
 }
 const selected = useTemplateRef("allSelect");
 function SelectList(item) {
+  ishow.value = true;
   item.marked = !item.marked;
   let flag = true;
   for (let j = 0; j < arrayList.length; j++) {
@@ -38,32 +41,18 @@ function SelectList(item) {
 }
 
 function selectAll() {
+  ishow.value = false;
   all.value = !all.value;
   arrayList.forEach(e => {
     e.marked = all.value;
   });
 }
 
-/// ekhan theke shuru hbe
 function clearCompleted() {
-  // while (1) {
-  //   let idx = -1;
-  //   for (let i = 0; i < arrayList.length; i++) {
-  //     if (arrayList[i].marked) {
-  //       idx = i;
-  //       break;
-  //     }
-  //   }
-  //   if (idx == -1) {
-  //     break;
-  //   }
-  //   console.log(idx);
-  //   arrayList.splice(idx, 1);
-  // }
-  const arr = ref([]);
-  arr = arrayList.filter( e => e.marked === true);
-  console.log(arr);
-  arrayList = arr;
+  ishow.value = false;
+  const arr = arrayList.filter( e => e.marked === false);
+  arrayList.length = 0;
+  arrayList.push(...arr);
 }
 function visible() {
   for (let i = 0; i < arrayList.length; i++) {
@@ -71,54 +60,36 @@ function visible() {
   }
 }
 function allCompleted() {
+  ishow.value = true;
   allFalse();
   buttonColor[0] = 1;
   visible();
-  for (let i = 0; i < arrayList.length; i++) {
-    if (arrayList[i].marked === false) {
-      arrayList[i].isVisible = false;
-    }
-  }
+  arrayList.forEach(e => e.marked ? e.isVisible = true : e.isVisible = false);
 }
 
 function showAll() {
+  ishow.value = true;
   allFalse();
   buttonColor[2] = 1;
   visible();
-  for (let i = 0; i < arrayList.length; i++) {
-    if (arrayList[i].marked === false) {
-      arrayList[i].isVisible = true;
-    }
-  }
+  arrayList.forEach(e => e.isVisible = true);
 }
 
 function remaining() {
+  ishow.value = true;
   allFalse();
   buttonColor[1] = 1;
   visible();
-  for (let i = 0; i < arrayList.length; i++) {
-    if (arrayList[i].marked === true) {
-      arrayList[i].isVisible = false;
-    }
-  }
+  arrayList.forEach(e => e.marked ? e.isVisible = false : e.isVisible = true);
 }
 
 function edit(item, index) {
-  if (editButtons.value[index]) {
-    if (editButtons.value[index].innerText === "Edit") {
-      editButtons.value[index].innerText = "Save";
-      item.editFlag = true;
-      editVal.value = item.task;
-      item.task = "";
-    } else {
-      editButtons.value[index].innerText = "Edit";
-      item.task = editVal.value;
-      item.editFlag = false;
-    }
-  }
+  ishow.value = true;
+  item.editFlag = !item.editFlag;
 }
 
 function deleteItem(index) {
+  ishow.value = true;
   arrayList.splice(index, 1);
 }
 </script>
@@ -135,34 +106,19 @@ function deleteItem(index) {
     <ul id="all-task" class="listTask"></ul>
 
     <div id="all-btn">
-      <button id="btn1" @click="allCompleted" :style="buttonColor[0] === 1
-        ? { backgroundColor: 'red' }
-        : { backgroundColor: '#4a54e1' }
-        ">
+      <button id="btn1" @click="allCompleted" :class="buttonColor[0] === 1 ? 'Red' : 'Blue'">
         All Completed
       </button>
-      <button @click="remaining()" id="btn2" :style="buttonColor[1] === 1
-        ? { backgroundColor: 'red' }
-        : { backgroundColor: '#4a54e1' }
-        ">
+      <button @click="remaining()" id="btn2" :class="buttonColor[1] === 1 ? 'Red' : 'Blue'">
         Remaining
       </button>
-      <button @click="showAll()" id="btn3" :style="buttonColor[2] === 1
-        ? { backgroundColor: 'red' }
-        : { backgroundColor: '#4a54e1' }
-        ">
+      <button @click="showAll()" id="btn3" :class="buttonColor[2] === 1 ? 'Red' : 'Blue'">
         Show all
       </button>
-      <button @click="clearCompleted()" id="btn4" :style="buttonColor[3] === 1
-        ? { backgroundColor: 'red' }
-        : { backgroundColor: '#4a54e1' }
-        ">
+      <button @click="clearCompleted()" id="btn4">
         Clear Completed Task
       </button>
-      <button id="btn5" ref="allSelect" @click="selectAll" :style="buttonColor[4] === 1
-        ? { backgroundColor: 'red' }
-        : { backgroundColor: '#4a54e1' }
-        ">
+      <button id="btn5" @click="selectAll">
         {{all ? 'Unselect All' : 'Select All'}}
       </button>
     </div>
@@ -170,14 +126,14 @@ function deleteItem(index) {
 
   <!-- Output Part  -->
   <ul id="all-task" class="listTask">
-    <li v-for="(item, index) in arrayList" v-show="item.isVisible" :key="item.id" @click="SelectList(item)"
+    <li v-for="(item, index) in arrayList" v-show="item.isVisible && ishow" :key="item.id" @click="SelectList(item)"
       :class="item.marked === true ? 'Green' : 'White'" id="VueOutput">
       <div>
-        {{ item.task }}
-        <input v-show="item.editFlag" v-model="editVal" @click.stop />
+        {{ item.editFlag === false ? item.task : ''}}
+        <input v-show="item.editFlag" v-model="item.task" @click.stop />
         <div>
           <button class="editTask" @click.stop="edit(item, index)" ref="editButtons">
-            Edit
+            {{ item.editFlag === false ? 'Edit' : 'Save' }}
           </button>
           <button class="dltTask" @click.stop="deleteItem(index)">
             Delete
@@ -199,6 +155,12 @@ function deleteItem(index) {
 
 .Green {
   background-color: rgb(21, 209, 21);
+}
+.Red{
+  background-color: red !important;
+}
+.Blue{
+  background-color: #4a54e1 !important;
 }
 
 #VueOutput {
